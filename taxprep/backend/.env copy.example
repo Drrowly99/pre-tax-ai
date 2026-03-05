@@ -1,0 +1,44 @@
+# ─── SUPABASE ────────────────────────────────────────────────
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_KEY=your-service-role-key
+
+# ─── AI APIS ─────────────────────────────────────────────────
+ANTHROPIC_API_KEY=your-anthropic-key
+GEMINI_API_KEY=your-gemini-key
+
+# ─── STRIPE ──────────────────────────────────────────────────
+STRIPE_SECRET_KEY=sk_live_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+STRIPE_DEPOSIT_PRICE_ID=price_xxx
+STRIPE_BALANCE_SINGLE_ID=price_xxx
+STRIPE_BALANCE_FULL_ID=price_xxx
+STRIPE_BALANCE_RUSH_ID=price_xxx
+
+# ─── EMAIL ───────────────────────────────────────────────────
+RESEND_API_KEY=re_xxx
+ADMIN_EMAIL=you@yourdomain.com
+
+# ─── WORKER PASSWORDS (5 workers, simple auth) ───────────────
+# Each worker gets their own password. Store securely.
+WORKER_1_NAME=Alice
+WORKER_1_PASSWORD=change-me-worker1
+
+WORKER_2_NAME=Bob
+WORKER_2_PASSWORD=change-me-worker2
+
+WORKER_3_NAME=Carol
+WORKER_3_PASSWORD=change-me-worker3
+
+WORKER_4_NAME=Dan
+WORKER_4_PASSWORD=change-me-worker4
+
+WORKER_5_NAME=Eve
+WORKER_5_PASSWORD=change-me-worker5
+
+# ─── APP ─────────────────────────────────────────────────────
+PORT=3001
+FRONTEND_URL=https://your-frontend.railway.app
+NODE_ENV=production
+FILE_DELETE_AFTER_HOURS=72
+MAX_UPLOAD_SIZE_MB=50
