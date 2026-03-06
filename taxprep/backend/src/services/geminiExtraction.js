@@ -17,7 +17,7 @@ import {
 } from './extractionPrompt.js';
 
 const genAI       = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const MODEL       = 'gemini-1.5-pro';
+const MODEL       = 'gemini-2.5-pro';
 const MAX_RETRIES = 2;
 
 // Gemini config — match Claude's instruction style

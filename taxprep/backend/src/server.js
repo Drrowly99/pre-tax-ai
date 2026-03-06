@@ -13,9 +13,12 @@ import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
 import hpp from 'hpp';
 import logger from './utils/logger.js';
-
+import securityHeadersMiddleware  from './middleware/securityHeaders.js';
+import { requireIdempotency, optionalIdempotency } from './middleware/idempotency.js';
+import { withLock } from './middleware/raceGuard.js';
 import authRoutes from './routes/auth.js';
 import jobRoutes from './routes/jobs.js';
+import supabase from './utils/supabase.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -41,6 +44,7 @@ app.use(cors({
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
+app.use(securityHeadersMiddleware);
 
 // Body parsing — JSON and URL-encoded
 app.use(express.json({ limit: '1mb' })); // Strict limit on JSON body size
@@ -105,6 +109,11 @@ app.get('/health', (req, res) => {
 // ── ROUTES ────────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
+app.get('/test-db', async (req, res) => {
+  const { data, error } = await supabase.from('jobs').select('count');
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true, data });
+});
 
 // ── 404 HANDLER ───────────────────────────────────────────────────────────────
 app.use((req, res) => {

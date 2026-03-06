@@ -1,0 +1,38 @@
+### Test /ai/bid endpoint with call.rest
+
+GET http://localhost:3001/test-db
+Content-Type: application/json
+
+
+### Create Job
+POST http://localhost:3001/api/auth/login
+Content-Type: application/json
+
+{
+  "name": "Bob",
+  "password": "change-me-worker2"
+}
+
+### Create Job
+POST http://localhost:3001/api/jobs
+Content-Type: application/json
+Authorization: Bearer QWxpY2U6Y2hhbmdlLW1lLXdvcmtlcjE=
+
+{
+  "client_name": "John Smith",
+  "client_email": "john@example.com",
+  "company_name": "Smith Property Services",
+  "tier": "single",
+  "bank_account_count": 1,
+  "tax_year": 2025
+}
+
+### Test /POOLING
+
+GET http://localhost:3001/api/jobs/19bfee9c-29e0-4ba3-8980-1501698c2e85/status
+Authorization: Bearer QWxpY2U6Y2hhbmdlLW1lLXdvcmtlcjE=
+
+### Test /POOLING
+
+GET http://localhost:3001/api/jobs/19bfee9c-29e0-4ba3-8980-1501698c2e85
+Authorization: Bearer QWxpY2U6Y2hhbmdlLW1lLXdvcmtlcjE=

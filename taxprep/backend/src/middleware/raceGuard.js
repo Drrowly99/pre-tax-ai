@@ -1,135 +1,156 @@
-import logger from '../utils/logger.js';
-import { supabase } from '../utils/supabase.js';
+// src/middleware/raceGuard.js
+// Distributed lock to prevent race conditions on critical operations.
+// Uses Supabase as the lock store — safe across multiple server instances.
 
-/**
- * Race Guard / Distributed Lock Middleware
- * Prevents race conditions on critical operations
- *
- * CREATE TABLE job_locks (
- *   job_id UUID PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
- *   locked_by TEXT NOT NULL,
- *   locked_at TIMESTAMPTZ DEFAULT NOW(),
- *   operation TEXT NOT NULL,
- *   expires_at TIMESTAMPTZ NOT NULL
- * );
- */
+import supabase from '../utils/supabase.js';
+import logger from '../utils/logger.js';
 
 const LOCK_TTL_MINUTES = 10;
 
 /**
- * Acquire a lock on a job
- * Returns true if lock acquired, false if already locked
+ * Acquire a distributed lock for a job.
+ * Returns true if lock acquired, false if already locked.
  */
 export async function acquireLock(jobId, operation, lockedBy) {
-  try {
-    const now = new Date();
-    const expiresAt = new Date(now.getTime() + LOCK_TTL_MINUTES * 60 * 1000);
+  const now = new Date();
+  const expiresAt = new Date(now.getTime() + LOCK_TTL_MINUTES * 60 * 1000).toISOString();
 
-    // Check if lock exists and is not expired
-    const { data: existingLock, error: fetchError } = await supabase
-      .from('job_locks')
-      .select('expires_at, locked_by')
-      .eq('job_id', jobId)
-      .single();
+  const { data: existing, error: fetchError } = await supabase
+    .from('job_locks')
+    .select('locked_by, operation, expires_at')
+    .eq('job_id', jobId)
+    .maybeSingle();
 
-    if (fetchError && fetchError.code !== 'PGRST116') {
-      logger.error(`Lock fetch error for job ${jobId}: ${fetchError.message}`);
-      throw fetchError;
-    }
-
-    if (existingLock) {
-      const expiresAtTime = new Date(existingLock.expires_at);
-      if (expiresAtTime > now) {
-        // Lock is still valid
-        logger.warn(`Lock already held on job ${jobId} by ${existingLock.locked_by}`);
-        return false;
-      }
-      // Lock is stale — will be overwritten below
-    }
-
-    // Acquire lock via upsert
-    const { error: upsertError } = await supabase
-      .from('job_locks')
-      .upsert({
-        job_id: jobId,
-        locked_by: lockedBy,
-        operation: operation,
-        locked_at: now.toISOString(),
-        expires_at: expiresAt.toISOString()
-      }, {
-        onConflict: 'job_id'
-      });
-
-    if (upsertError) {
-      logger.error(`Failed to acquire lock on job ${jobId}: ${upsertError.message}`);
-      throw upsertError;
-    }
-
-    logger.info(`Lock acquired on job ${jobId} for operation ${operation}`);
-    return true;
-  } catch (err) {
-    logger.error(`acquireLock error: ${err.message}`);
-    throw err;
+  if (fetchError) {
+    logger.error('Lock fetch failed', { jobId, error: fetchError.message });
+    throw new Error('Failed to check job lock');
   }
-}
 
-/**
- * Release a lock on a job
- */
-export async function releaseLock(jobId) {
-  try {
-    const { error } = await supabase
+  if (existing) {
+    const lockExpired = new Date(existing.expires_at) <= now;
+
+    if (!lockExpired) {
+      logger.warn('Lock already held', {
+        jobId,
+        operation: existing.operation,
+        lockedBy:  existing.locked_by,
+        expiresAt: existing.expires_at,
+      });
+      return false;
+    }
+
+    // Expired lock — overwrite it
+    logger.info('Overwriting expired lock', { jobId, previousOperation: existing.operation });
+    const { error: updateError } = await supabase
       .from('job_locks')
-      .delete()
+      .update({ locked_by: lockedBy, operation, locked_at: now.toISOString(), expires_at: expiresAt })
       .eq('job_id', jobId);
 
-    if (error) {
-      logger.error(`Failed to release lock on job ${jobId}: ${error.message}`);
-      throw error;
+    if (updateError) {
+      logger.error('Lock overwrite failed', { jobId, error: updateError.message });
+      throw new Error('Failed to acquire job lock');
     }
 
-    logger.info(`Lock released on job ${jobId}`);
-  } catch (err) {
-    logger.error(`releaseLock error: ${err.message}`);
-    throw err;
+    return true;
+  }
+
+  // No existing lock — insert new one
+  const { error: insertError } = await supabase
+    .from('job_locks')
+    .insert({
+      job_id:     jobId,
+      locked_by:  lockedBy,
+      operation,
+      locked_at:  now.toISOString(),
+      expires_at: expiresAt,
+    });
+
+  if (insertError) {
+    if (insertError.code === '23505') {
+      // Unique violation — another request got the lock first in a race
+      logger.warn('Lock race — another process acquired first', { jobId });
+      return false;
+    }
+    logger.error('Lock insert failed', { jobId, error: insertError.message });
+    throw new Error('Failed to acquire job lock');
+  }
+
+  logger.info('Lock acquired', { jobId, operation, lockedBy });
+  return true;
+}
+
+/**
+ * Release a lock for a job.
+ */
+export async function releaseLock(jobId) {
+  const { error } = await supabase
+    .from('job_locks')
+    .delete()
+    .eq('job_id', jobId);
+
+  if (error) {
+    logger.warn('Lock release failed', { jobId, error: error.message });
+  } else {
+    logger.info('Lock released', { jobId });
   }
 }
 
 /**
- * Acquire lock, run function, release lock (even on error)
+ * Acquire lock, run fn, release lock even if fn throws.
  */
 export async function withLock(jobId, operation, lockedBy, fn) {
-  const locked = await acquireLock(jobId, operation, lockedBy);
+  const acquired = await acquireLock(jobId, operation, lockedBy);
 
-  if (!locked) {
-    const err = new Error(`Job ${jobId} is locked for operation ${operation}`);
+  if (!acquired) {
+    const err = new Error(`Job ${jobId} is already being processed (operation: ${operation})`);
+    err.code   = 'LOCK_CONFLICT';
     err.status = 409;
     throw err;
   }
 
   try {
-    const result = await fn();
-    return result;
+    return await fn();
   } finally {
-    // Always release lock
-    try {
-      await releaseLock(jobId);
-    } catch (err) {
-      logger.error(`Error releasing lock during cleanup: ${err.message}`);
-    }
+    await releaseLock(jobId);
   }
 }
 
 /**
- * Express middleware wrapper
- * Checks for race conditions on protected operations
+ * Express middleware factory.
+ * Usage: router.post('/run-analysis', raceGuardMiddleware('pipeline'), handler)
+ * Gets jobId from req.params.jobId
+ * Gets lockedBy from req.worker.id (set by auth middleware)
  */
-export function raceGuardMiddleware(req, res, next) {
-  // This middleware typically doesn't block immediately
-  // Instead, specific route handlers call withLock()
-  // But we can add global race condition detection here if needed
+export function raceGuardMiddleware(operation) {
+  return async function (req, res, next) {
+    const jobId    = req.params.jobId;
+    const lockedBy = req.worker?.id || 'unknown';
 
-  next();
+    if (!jobId) return next();
+
+    try {
+      const acquired = await acquireLock(jobId, operation, lockedBy);
+
+      if (!acquired) {
+        return res.status(409).json({
+          error:                'Conflict',
+          message:              `This job is currently being processed (${operation}). Please wait and try again.`,
+          retry_after_seconds:  30,
+        });
+      }
+
+      // Allow route to release early if needed
+      req.releaseLock = () => releaseLock(jobId);
+
+      // Auto-release when response finishes
+      res.on('finish', () => {
+        releaseLock(jobId).catch(() => {});
+      });
+
+      next();
+    } catch (err) {
+      logger.error('raceGuardMiddleware error', { jobId, operation, error: err.message });
+      return res.status(500).json({ error: 'Failed to process lock. Please try again.' });
+    }
+  };
 }
-
-export default { acquireLock, releaseLock, withLock, raceGuardMiddleware };

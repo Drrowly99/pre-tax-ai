@@ -1,41 +1,32 @@
 // src/services/extractionPrompt.js
-// Builds the extraction prompts used by both Claude and Gemini.
-// Keeping prompts in one place means both models get identical instructions —
-// making the Judge's reconciliation job easier.
+// Builds prompts for Gemini PDF extraction.
+// Single prompt — no separate text/vision variants needed anymore.
 
-/**
- * US property preservation tax categories for 1099 contractors.
- * These map to Schedule C line items.
- */
 export const TAX_CATEGORIES = [
-  'materials_supplies',        // lumber, hardware, cleaning supplies, etc.
-  'tools_equipment',           // power tools, ladders, equipment purchases
-  'fuel_mileage',              // gas stations, fuel cards
-  'vehicle_maintenance',       // oil changes, tires, repairs
-  'subcontractor_labor',       // payments to other workers / crews
-  'dump_fees_disposal',        // landfill, junk removal, dumpster rental
-  'permits_fees',              // city permits, inspection fees
-  'insurance',                 // liability insurance, workers comp
-  'phone_internet',            // business phone, hotspot
-  'advertising_marketing',     // listings, flyers, online ads
-  'office_supplies',           // printer, paper, pens
-  'professional_services',     // accountant, attorney
-  'rent_storage',              // storage unit, shop rent
-  'utilities',                 // job-site utilities
-  'meals_entertainment',       // business meals (50% deductible)
-  'travel_lodging',            // hotels, flights for work
-  'banking_fees',              // bank charges, wire fees
-  'software_subscriptions',    // apps, SaaS tools
-  'income_1099',               // money received FROM clients (revenue)
-  'transfer',                  // internal account transfer (not income/expense)
-  'personal',                  // clearly personal — not deductible
-  'unknown',                   // cannot determine — needs clarification
+  'materials_supplies',
+  'tools_equipment',
+  'fuel_mileage',
+  'vehicle_maintenance',
+  'subcontractor_labor',
+  'dump_fees_disposal',
+  'permits_fees',
+  'insurance',
+  'phone_internet',
+  'advertising_marketing',
+  'office_supplies',
+  'professional_services',
+  'rent_storage',
+  'utilities',
+  'meals_entertainment',
+  'travel_lodging',
+  'banking_fees',
+  'software_subscriptions',
+  'income_1099',
+  'transfer',
+  'personal',
+  'unknown',
 ];
 
-/**
- * Build the system prompt — identical for text and vision modes.
- * Instructs the model on its role, output format, and field definitions.
- */
 export function buildSystemPrompt() {
   return `You are a forensic accounting AI specialising in US tax preparation for 
 1099 property preservation contractors. Your job is to extract every financial 
@@ -95,49 +86,29 @@ CONFIDENCE LEVELS:
 }
 
 /**
- * Build the user prompt for TEXT-based extraction.
- *
- * @param {string} text         - Raw text extracted from the PDF
- * @param {string} filename     - Original filename (for context)
+ * Single prompt for direct PDF extraction.
+ * No separate text/vision variants — Gemini reads the PDF natively.
  */
-export function buildTextPrompt(text, filename) {
-  return `Extract all transactions from this bank statement.
+export function buildPDFPrompt(filename) {
+  return `Extract all transactions from this bank statement PDF.
 Filename: ${filename}
 
-STATEMENT TEXT:
----
-${text}
----
+Read every page carefully. Extract every transaction row from every table.
+Do not skip rows even if they appear faint or are on continuation pages.
+Also extract the opening balance, closing balance, statement period dates,
+and last 4 digits of the account number if visible.
 
 Return valid JSON only. No markdown formatting.`;
 }
 
 /**
- * Build the user prompt for VISION-based extraction.
- * The actual image bytes are passed separately by the calling service.
- *
- * @param {string} filename     - Original filename (for context)
- * @param {number} pageCount    - Number of pages being sent
+ * Parse extraction response.
+ * rawMode = true: preserve line_number, running_balance, page_number from Agent 1
+ * rawMode = false: standard sanitise for legacy use
  */
-export function buildVisionPrompt(filename, pageCount) {
-  return `Extract all transactions from this bank statement image${pageCount > 1 ? 's' : ''}.
-Filename: ${filename}
-Pages: ${pageCount}
-
-Carefully read every row in the transaction table(s). Do not skip rows even if 
-they are faint or partially cut off. Return valid JSON only. No markdown.`;
-}
-
-/**
- * Safely parse the model's JSON response.
- * Returns null if parsing fails — caller handles the fallback.
- *
- * @param {string} raw  - Raw string response from model
- */
-export function parseExtractionResponse(raw) {
+export function parseExtractionResponse(raw, rawMode = false) {
   if (!raw) return null;
 
-  // Strip markdown code fences if model added them despite instructions
   const cleaned = raw
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```\s*$/i, '')
@@ -145,23 +116,33 @@ export function parseExtractionResponse(raw) {
 
   try {
     const parsed = JSON.parse(cleaned);
+    if (!Array.isArray(parsed.transactions)) return null;
 
-    // Validate minimum required shape
-    if (!Array.isArray(parsed.transactions)) {
-      return null;
+    if (rawMode) {
+      // Agent 1 raw mode — preserve all fields exactly as returned
+      parsed.transactions = parsed.transactions.map((t, i) => ({
+        line_number:     t.line_number     ?? i + 1,
+        page_number:     t.page_number     ?? null,
+        date:            t.date            || null,
+        description:     t.description    || 'UNKNOWN',
+        amount:          typeof t.amount === 'number' ? Math.abs(t.amount) : null,
+        type:            t.type === 'credit' ? 'credit' : 'debit',
+        running_balance: t.running_balance ?? null,
+        extraction_note: t.extraction_note || null,
+      }));
+    } else {
+      // Standard mode — sanitise for Supabase
+      parsed.transactions = parsed.transactions.map(t => ({
+        date:        t.date        || null,
+        description: t.description || 'UNKNOWN',
+        amount:      typeof t.amount === 'number' ? Math.abs(t.amount) : null,
+        type:        t.type === 'credit' ? 'credit' : 'debit',
+        category:    TAX_CATEGORIES.includes(t.category) ? t.category : 'unknown',
+        is_business: t.is_business ?? null,
+        confidence:  ['HIGH', 'MEDIUM', 'LOW'].includes(t.confidence) ? t.confidence : 'LOW',
+        notes:       t.notes || null,
+      }));
     }
-
-    // Sanitise each transaction
-    parsed.transactions = parsed.transactions.map(t => ({
-      date:        t.date        || null,
-      description: t.description || 'UNKNOWN',
-      amount:      typeof t.amount === 'number' ? Math.abs(t.amount) : null,
-      type:        t.type === 'credit' ? 'credit' : 'debit',
-      category:    TAX_CATEGORIES.includes(t.category) ? t.category : 'unknown',
-      is_business: t.is_business ?? null,
-      confidence:  ['HIGH', 'MEDIUM', 'LOW'].includes(t.confidence) ? t.confidence : 'LOW',
-      notes:       t.notes || null,
-    }));
 
     return parsed;
   } catch {

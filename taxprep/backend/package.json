@@ -20,6 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.16.0",
+    "@google/genai": "^1.44.0",
     "@google/generative-ai": "^0.11.0",
     "@supabase/supabase-js": "^2.38.4",
     "axios": "^1.6.2",
@@ -36,6 +37,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "pdf-parse": "^1.1.1",
+    "pdf2pic": "^3.2.0",
     "sharp": "^0.33.0",
     "stripe": "^14.0.0",
     "winston": "^3.11.0"

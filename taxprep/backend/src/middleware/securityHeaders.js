@@ -1,85 +1,79 @@
-import logger from '../utils/logger.js';
+// src/middleware/securityHeaders.js
+// Additional security headers beyond helmet.
+// Centralises all header logic in one place.
+
+import  logger from '../utils/logger.js';
+
+const SUPABASE_HOST = process.env.SUPABASE_URL
+  ? new URL(process.env.SUPABASE_URL).hostname
+  : '*.supabase.co';
 
 /**
- * Security Headers Middleware
- * Centralizes all security header configuration
+ * securityHeadersMiddleware
+ * Applied globally in server.js after helmet.
  */
+function securityHeadersMiddleware(req, res, next) {
+  // ── CORS preflight fast-return ──────────────────────────────────────────
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Max-Age', '86400'); // Cache preflight 24hrs
+    return res.status(204).end();
+  }
 
-export function securityHeadersMiddleware(req, res, next) {
-  // Content Security Policy — strict whitelist
-  res.setHeader(
-    'Content-Security-Policy',
-    [
-      "default-src 'self'",
-      `script-src 'self' https://js.stripe.com`,
-      `style-src 'self' 'unsafe-inline'`,
-      `img-src 'self' data: https:`,
-      `font-src 'self' data:`,
-      `connect-src 'self' https://api.stripe.com https://*.supabase.co`,
-      `frame-src https://js.stripe.com`,
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'"
-    ].join('; ')
-  );
+  // ── Content-Security-Policy ─────────────────────────────────────────────
+  const csp = [
+    "default-src 'self'",
+    `connect-src 'self' https://${SUPABASE_HOST} https://api.stripe.com`,
+    "script-src 'self' https://js.stripe.com",
+    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    "img-src 'self' data: https:",
+    "style-src 'self' 'unsafe-inline'", // Allow inline styles for now
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests",
+  ].join('; ');
 
-  // Prevent MIME type sniffing
+  res.setHeader('Content-Security-Policy', csp);
+
+  // ── Standard security headers ───────────────────────────────────────────
   res.setHeader('X-Content-Type-Options', 'nosniff');
-
-  // Frame options — prevent clickjacking
   res.setHeader('X-Frame-Options', 'DENY');
-
-  // Referrer policy
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), payment=()'
+  );
+  res.setHeader('X-XSS-Protection', '1; mode=block');
 
-  // Permissions policy (formerly Feature-Policy)
-  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  // ── Remove fingerprinting headers ───────────────────────────────────────
+  res.removeHeader('X-Powered-By');
+  res.removeHeader('Server');
 
-  // Custom header for version tracking
+  // ── Custom service header ───────────────────────────────────────────────
   res.setHeader('X-TaxPrep-Version', '1.0');
 
-  // Ensure X-Powered-By is removed
-  res.removeHeader('X-Powered-By');
-
-  // Log security headers in development
+  // ── Development: log incoming security-relevant headers ─────────────────
   if (process.env.NODE_ENV === 'development') {
-    const securityRelevantHeaders = [
+    const relevant = [
       'authorization',
-      'x-api-key',
-      'x-stripe-signature',
+      'origin',
+      'referer',
+      'x-forwarded-for',
+      'x-real-ip',
       'idempotency-key',
-      'user-agent'
     ];
-
-    const loggedHeaders = {};
-    securityRelevantHeaders.forEach(header => {
-      const value = req.get(header);
-      if (value) {
-        // Don't log full auth values
-        if (header === 'authorization') {
-          loggedHeaders[header] = value.substring(0, 20) + '...';
-        } else {
-          loggedHeaders[header] = value;
-        }
+    const incoming = {};
+    for (const h of relevant) {
+      if (req.headers[h]) {
+        // Redact auth values — only log presence
+        incoming[h] = h === 'authorization' ? '[PRESENT]' : req.headers[h];
       }
-    });
-
-    if (Object.keys(loggedHeaders).length > 0) {
-      logger.debug(`Security headers in request:`, loggedHeaders);
+    }
+    if (Object.keys(incoming).length) {
+      logger.debug('Incoming security headers', { path: req.path, headers: incoming });
     }
   }
 
-  next();
-}
-
-/**
- * CORS preflight fast-return middleware
- * Handles OPTIONS requests with 204 No Content
- */
-export function corsPreflightHandler(req, res, next) {
-  if (req.method === 'OPTIONS') {
-    return res.status(204).end();
-  }
   next();
 }
 

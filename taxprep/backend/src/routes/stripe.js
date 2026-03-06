@@ -12,7 +12,9 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import Joi from 'joi';
 
-import { validateBody }   from '../middleware/validate.js';
+import { validateBody }         from '../middleware/validate.js';
+import { requireIdempotency }  from '../middleware/idempotency.js';
+import { withLock }            from '../middleware/raceGuard.js';
 import asyncHandler       from '../utils/asyncHandler.js';
 import supabase           from '../utils/supabase.js';
 import logger             from '../utils/logger.js';
@@ -34,7 +36,7 @@ const depositSchema = Joi.object({
   tier:    Joi.string().valid('single', 'full', 'rush').required(),
 });
 
-router.post('/create-deposit-session', validateBody(depositSchema), asyncHandler(async (req, res) => {
+router.post('/create-deposit-session', requireIdempotency, validateBody(depositSchema), asyncHandler(async (req, res) => {
   const { case_id, tier } = req.body;
 
   const { data: job, error } = await supabase
@@ -261,14 +263,16 @@ async function handleCheckoutComplete(session) {
       return;
     }
 
-    await supabase
-      .from('jobs')
-      .update({
-        balance_paid:           true,
-        stripe_balance_session: session.id,
-        status:                 'balance_paid',
-      })
-      .eq('id', job_id);
+    await withLock(job_id, 'balance-payment', 'stripe-webhook', async () => {
+      await supabase
+        .from('jobs')
+        .update({
+          balance_paid:           true,
+          stripe_balance_session: session.id,
+          status:                 'balance_paid',
+        })
+        .eq('id', job_id);
+    });
 
     await auditLog(job_id, null, 'balance_paid', {
       session_id: session.id,

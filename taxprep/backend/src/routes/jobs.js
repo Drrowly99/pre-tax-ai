@@ -22,8 +22,10 @@ import { validateBody, validateParams } from '../middleware/validate.js';
 import asyncHandler                    from '../utils/asyncHandler.js';
 import supabase                        from '../utils/supabase.js';
 import logger                          from '../utils/logger.js';
-import { runPipeline }                 from '../services/aiPipeline.js';
+import { runPipeline }                 from '../services/aiPipeline_orig.js';
 import { generate as generateCaseId }  from '../utils/caseId.js';
+import { requireIdempotency, optionalIdempotency } from '../middleware/idempotency.js';
+import { withLock } from '../middleware/raceGuard.js';
 
 const router = Router();
 
@@ -200,7 +202,7 @@ router.get('/:jobId', asyncHandler(async (req, res) => {
 
 // ── PATCH /api/jobs/:jobId — update job ───────────────────────────────────────
 
-router.patch('/:jobId', validateBody(updateJobSchema), asyncHandler(async (req, res) => {
+router.patch('/:jobId', optionalIdempotency, validateBody(updateJobSchema), asyncHandler(async (req, res) => {
   const { jobId } = req.params;
 
   const { data: job, error: fetchErr } = await supabase
@@ -258,14 +260,14 @@ router.post('/:jobId/files', upload.array('files', 20), asyncHandler(async (req,
     return res.status(400).json({ error: 'No files uploaded' });
   }
 
-  // Insert file records
+  // Insert file records — match schema columns (filename NOT NULL, original_name for display)
   const fileRecords = req.files.map(f => ({
     id:            uuidv4(),
     job_id:        jobId,
+    filename:      f.filename,
     original_name: f.originalname,
     file_path:     f.path,
     file_size:     f.size,
-    mime_type:     f.mimetype,
     status:        'uploaded',
     uploaded_at:   new Date().toISOString(),
   }));
@@ -336,7 +338,7 @@ router.post('/:jobId/run-analysis', asyncHandler(async (req, res) => {
     filename:     path.basename(f.file_path),
   }));
 
-  runPipeline(jobId, uploadedFiles).catch(err => {
+  withLock(jobId, 'run-analysis', req.worker.id, () => runPipeline(jobId, uploadedFiles)).catch(err => {
     logger.error('Pipeline fire-and-forget error', { jobId, error: err.message });
   });
 
@@ -384,15 +386,24 @@ router.post('/:jobId/publish', asyncHandler(async (req, res) => {
     });
   }
 
-  const { data: updated, error } = await supabase
-    .from('jobs')
-    .update({
-      status:       'published',
-      published_at: new Date().toISOString(),
-    })
-    .eq('id', jobId)
-    .select()
-    .single();
+  let updated, error;
+  try {
+    const result = await withLock(jobId, 'publish', req.worker.id, () =>
+      supabase
+        .from('jobs')
+        .update({
+          status:       'published',
+          published_at: new Date().toISOString(),
+        })
+        .eq('id', jobId)
+        .select()
+        .single()
+    );
+    updated = result.data;
+    error   = result.error;
+  } catch (lockErr) {
+    return res.status(409).json({ error: lockErr.message });
+  }
 
   if (error) {
     logger.error('Publish failed', { jobId, error: error.message });
