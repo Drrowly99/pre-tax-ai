@@ -4,6 +4,7 @@
  * Usage: node server.js
  */
 
+
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -44,7 +45,7 @@ http.createServer((req, res) => {
 
     const contentType = mimeTypes[extname] || 'application/octet-stream';
 
-    fs.readFile(filePath, function(error, content) {
+    fs.readFile(filePath, function (error, content) {
         if (error) {
             if (error.code == 'ENOENT') {
                 res.writeHead(404, { 'Content-Type': 'text/html' });
