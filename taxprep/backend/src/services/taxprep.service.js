@@ -2108,4 +2108,4 @@ main().catch(err => {
   console.error('\n💥 Pipeline crashed:', err.message);
   console.error(err.stack);
   process.exit(1);
-});
+});\nexport async function runFullTaxPrep(jobId, pdfPaths, clientContext) { /* TODO */ }

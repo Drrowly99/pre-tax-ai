@@ -14,14 +14,46 @@
 import { Router }  from 'express';
 import crypto      from 'crypto';
 import Joi         from 'joi';
+import multer       from 'multer';
+import path         from 'path';
+import fs           from 'fs';
+import { v4 as uuidv4 } from 'uuid';
 
 import { validateBody } from '../middleware/validate.js';
+import { requireClientAuth } from '../middleware/clientAuth.js';
+import asyncHandler     from '../utils/asyncHandler.js';
+import supabase         from '../utils/supabase.js';
+import logger           from '../utils/logger.js';
+import { generateExcel } from '../services/excelExport.js';
+import { generate as generateCaseId } from '../utils/caseId.js';
 import asyncHandler     from '../utils/asyncHandler.js';
 import supabase         from '../utils/supabase.js';
 import logger           from '../utils/logger.js';
 import { generateExcel } from '../services/excelExport.js';
 
 const router = Router();
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename:    (req, file, cb) => {
+    const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    cb(null, `${Date.now()}_${uuidv4().slice(0, 8)}_${safe}`);
+  },
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: (parseInt(process.env.MAX_UPLOAD_SIZE_MB || '50')) * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const isPdf = file.mimetype === 'application/pdf' ||
+      path.extname(file.originalname).toLowerCase() === '.pdf';
+    if (!isPdf) return cb(new Error('Only PDF files are allowed'));
+    cb(null, true);
+  },
+});
 
 // ── STATUS LABELS (never expose raw status to client) ─────────────────────────
 
@@ -115,6 +147,110 @@ function requireClientToken(req, res, next) {
   req.clientPayload = payload;
   next();
 }
+
+// ── POST /api/client/jobs — Client Create Job ──────────────────────────────────
+
+const createJobSchema = Joi.object({
+  tier: Joi.string().valid('quick', 'business', 'full').required(),
+  context: Joi.object().optional(),
+});
+
+const TIER_PRICING = {
+  quick:    { total: 7.99, deposit: 7.99, balance: 0 },
+  business: { total: 49.99, deposit: 25, balance: 24.99 },
+  full:     { total: 89.99, deposit: 45, balance: 44.99 },
+};
+
+router.post('/jobs', requireClientAuth, validateBody(createJobSchema), asyncHandler(async (req, res) => {
+  const { tier, context } = req.body;
+  const pricing     = TIER_PRICING[tier];
+  
+  // Try to find if one already exists for this exact context?
+  // Let's just create a new one every time they hit checkout.
+  const case_id     = await generateCaseId();
+
+  const { data: job, error } = await supabase
+    .from('jobs')
+    .insert({
+      id:                 uuidv4(),
+      case_id,
+      client_name:        req.user.email, // using email as fallback
+      client_email:       req.user.email,
+      company_name:       null,
+      tier,
+      bank_account_count: 1, // default
+      tax_year:           new Date().getFullYear() - 1,
+      status:             'pending',
+      created_by:         'client',
+      assigned_to:        null,
+      total_amount:       pricing.total,
+      deposit_amount:     pricing.deposit,
+      balance_amount:     pricing.balance,
+      deposit_paid:       false,
+      balance_paid:       pricing.balance === 0, // Quick extract has no balance
+      pipeline_progress:  0,
+      client_context:     context, // Store the wizard context
+    })
+    .select()
+    .single();
+
+  if (error) {
+    logger.error('Client Job creation failed', { error: error.message, client: req.user.email });
+    return res.status(500).json({ error: 'Failed to create job' });
+  }
+
+  logger.info('Client Job created', { jobId: job.id, caseId: case_id, client: req.user.email });
+  return res.status(201).json({ data: { job } });
+}));
+
+// ── POST /api/client/jobs/:id/files — Client Upload Files ─────────────────────
+
+router.post('/jobs/:jobId/files', requireClientAuth, upload.array('files', 20), asyncHandler(async (req, res) => {
+  const { jobId } = req.params;
+
+  const { data: job, error: fetchErr } = await supabase
+    .from('jobs')
+    .select('id, client_email')
+    .eq('id', jobId)
+    .single();
+
+  if (fetchErr || !job) return res.status(404).json({ error: 'Job not found' });
+  if (job.client_email !== req.user.email) return res.status(403).json({ error: 'Unauthorized' });
+
+  if (!req.files || req.files.length === 0) {
+    return res.status(400).json({ error: 'No files uploaded' });
+  }
+
+  const fileRecords = req.files.map(f => ({
+    id:            uuidv4(),
+    job_id:        jobId,
+    filename:      f.filename,
+    original_name: f.originalname,
+    file_path:     f.path,
+    file_size:     f.size,
+    status:        'uploaded',
+    uploaded_at:   new Date().toISOString(),
+  }));
+
+  const { data: insertedFiles, error: insertErr } = await supabase
+    .from('job_files')
+    .insert(fileRecords)
+    .select();
+
+  if (insertErr) {
+    logger.error('File record insert failed', { jobId, error: insertErr.message });
+    return res.status(500).json({ error: 'Failed to save file records' });
+  }
+
+  await supabase
+    .from('jobs')
+    .update({ status: 'documents_received' })
+    .eq('id', jobId)
+    .eq('status', 'pending');
+
+  logger.info('Client Files uploaded', { jobId, fileCount: req.files.length });
+  return res.status(201).json({ data: { files: insertedFiles } });
+}));
 
 // ── GET /api/client/status/:caseId — public ───────────────────────────────────
 

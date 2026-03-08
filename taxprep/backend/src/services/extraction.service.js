@@ -738,7 +738,7 @@ function detectInterAccountTransfers(txs) {
 // Validates returned array length matches input — rejects + retries if short.
 // Pattern cache is saved after each statement so the next one benefits.
 // ═══════════════════════════════════════════════════════════════════════════
-async function agent3_categorize_statement(ext, stmtLabel) {
+(ext, stmtLabel) {
   const txs = ext.transactions || [];
   const sourceFile = ext._meta?.source_file || 'unknown';
 
@@ -2108,4 +2108,4 @@ main().catch(err => {
   console.error('\n💥 Pipeline crashed:', err.message);
   console.error(err.stack);
   process.exit(1);
-});
+});\nexport async function runExtractionOnly(jobId, pdfPaths) { /* TODO */ }

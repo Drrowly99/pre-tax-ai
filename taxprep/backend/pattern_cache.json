@@ -1,0 +1,847 @@
+{
+  "mortgage con7129 des": {
+    "tax_category": "INCOME_1099",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "northsight mgm des:c": {
+    "tax_category": "INCOME_1099",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "cash app*cash 01/07": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "zelle transfer conf#": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "the home depot 01/09": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "cash app*cash 01/13": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "bill.com des:receiva": {
+    "tax_category": "INCOME_1099",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "shopify des:transfer": {
+    "tax_category": "INCOME_1099",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "irs des:usataxpymt i": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "amtrust na des:payme": {
+    "tax_category": "INSURANCE_BUSINESS",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "transfer greenfield": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "att des:payment id:x": {
+    "tax_category": "PHONE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "legal order, lts d01": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "infinity insuran des": {
+    "tax_category": "VEHICLE_INSURANCE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "spectrum des:spectru": {
+    "tax_category": "INTERNET",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0102 start": {
+    "tax_category": "PROFESSIONAL_FEES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0102 cash": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "vallarta vfe 3 01/03": {
+    "tax_category": "PERSONAL_GROCERY",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "wm superc wal- 01/04": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0104 anda0": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0104 cash": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "796 town & cou 01/08": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "family dollar 01/08": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "the home depot 01/08": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "wal-mart #2950 01/09": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0110 cash": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "796 town & cou 01/10": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0112 arco4": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "wal-mart super 01/12": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0113 arco4": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "wal-mart #2950 01/13": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0112 uas a": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0113 apple": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "eastside carwa 01/14": {
+    "tax_category": "VEHICLE_REPAIR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0114 apple": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0114 kwik": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0114 cash": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "901 fastrip fo 01/15": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "autozone 2834 01/15": {
+    "tax_category": "VEHICLE_REPAIR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0115 tular": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0115 cash": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0117 anda0": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "wal-mart #2950 01/17": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "the home depot 01/17": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0118 arco4": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "796 town & cou 01/19": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0119 weste": {
+    "tax_category": "PERSONAL_HEALTHCARE",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0119 shopi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "796 town & cou 01/20": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "wal-mart super 01/20": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0120 bossr": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0121 anda0": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "wal-mart super 01/21": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "pilot #0154 01/21 #0": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "901 fastrip fo 01/22": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "the home depot 01/22": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0122 canva": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0122 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0123 sunse": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "the home depot 01/23": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0124 sp *": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "spirit mart 01/24 #0": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0124 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "796 town & cou 01/25": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0125 digil": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0126 anda0": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "the home depot 01/26": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0127 arco4": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0127 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0128 start": {
+    "tax_category": "PROFESSIONAL_FEES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0128 shopi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "external transfer fe": {
+    "tax_category": "BANKING_FEE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "legal order fee,lts": {
+    "tax_category": "BANKING_FEE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "counter credit": {
+    "tax_category": "INCOME_OTHER",
+    "is_business": true,
+    "confidence": "MEDIUM"
+  },
+  "cash app*cash 03/04": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "cash app*cash 03/07": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "online banking trans": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "cash app*cash 03/21": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "cash app*cash 03/26": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "capital one auto des": {
+    "tax_category": "VEHICLE_PAYMENT",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "primerica01 des:ach": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "am nat ins co des:an": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "primerica life des:i": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "mb auto finance des:": {
+    "tax_category": "VEHICLE_PAYMENT",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "national general des": {
+    "tax_category": "VEHICLE_INSURANCE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0226 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0227 shopi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0227 wu *3": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0227 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0228 start": {
+    "tax_category": "PROFESSIONAL_FEES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0228 faceb": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0228 dropi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0228 mount": {
+    "tax_category": "PERSONAL_HEALTHCARE",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0301 uas a": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0302 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0304 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0305 cash": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "the home depot 03/05": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0304 the h": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0305 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0306 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0306 googl": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0306 amazo": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0306 apple": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0307 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "target t- 3801 03/06": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "ross stores #1 03/07": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0307 the h": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0308 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0308 cash": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0309 aliex": {
+    "tax_category": "COGS_INVENTORY",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0309 dream": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0309 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0310 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0310 cash": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0311 mfs s": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0311 sp *": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "MEDIUM"
+  },
+  "checkcard 0311 apple": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0311 dropi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0311 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0312 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0313 apple": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0313 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0313 circl": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0314 weste": {
+    "tax_category": "PERSONAL_HEALTHCARE",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0314 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0314 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0314 cash": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0314 circl": {
+    "tax_category": "FUEL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0315 aspen": {
+    "tax_category": "PROFESSIONAL_FEES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0316 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0316 sp *": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "MEDIUM"
+  },
+  "checkcard 0317 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0317 cash": {
+    "tax_category": "TRANSFER_INTERNAL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0317 u-hau": {
+    "tax_category": "EQUIPMENT_RENTAL",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0318 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0319 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0320 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0321 shopi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0321 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "vallarta vfe 3 03/21": {
+    "tax_category": "PERSONAL_GROCERY",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0322 snap": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0322 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0322 canva": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0322 cash": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0323 hajji": {
+    "tax_category": "PERSONAL_GROCERY",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0325 waste": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "MEDIUM"
+  },
+  "checkcard 0327 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "the home depot 03/27": {
+    "tax_category": "JOB_SUPPLIES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0328 start": {
+    "tax_category": "PROFESSIONAL_FEES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "food4less 2341 03/29": {
+    "tax_category": "PERSONAL_GROCERY",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0329 shopi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0329 adobe": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0329 cash": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0330 aspen": {
+    "tax_category": "PROFESSIONAL_FEES",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0330 dropi": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0330 the b": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "pmnt sent 0330 cash": {
+    "tax_category": "SUBCONTRACTOR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0311 the h": {
+    "tax_category": "INCOME_OTHER",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0302 uber": {
+    "tax_category": "VEHICLE_REPAIR",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0303 uber": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0304 uber": {
+    "tax_category": "PERSONAL_OTHER",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "bkofamerica atm 03/0": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0306 grubh": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0307 amzn": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "bkofamerica atm 03/1": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0311 uber": {
+    "tax_category": "SOFTWARE",
+    "is_business": true,
+    "confidence": "HIGH"
+  },
+  "checkcard 0317 amzn": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  },
+  "checkcard 0322 amzn": {
+    "tax_category": "PERSONAL_RETAIL",
+    "is_business": false,
+    "confidence": "HIGH"
+  }
+}

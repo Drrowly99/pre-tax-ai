@@ -33,7 +33,7 @@ const router = Router();
 
 const depositSchema = Joi.object({
   case_id: Joi.string().required(),
-  tier:    Joi.string().valid('single', 'full', 'rush').required(),
+  tier:    Joi.string().valid('quick', 'business', 'full').required(),
 });
 
 router.post('/create-deposit-session', requireIdempotency, validateBody(depositSchema), asyncHandler(async (req, res) => {
@@ -255,7 +255,30 @@ async function handleCheckoutComplete(session) {
 
     logger.info('Deposit payment recorded', { job_id, caseId: case_id });
 
-    // TODO Phase 2: sendDepositConfirmationEmail(job, token)
+    // Trigger appropriate Background Service based on tier
+    setTimeout(async () => {
+      try {
+        const { data: files } = await supabase
+          .from('job_files')
+          .select('id, file_path, original_name')
+          .eq('job_id', job_id)
+          .neq('status', 'deleted');
+
+        if (!files || files.length === 0) return;
+
+        const uploadedFiles = files.map(f => f.file_path);
+
+        if (job.tier === 'quick') {
+          const { runExtractionOnly } = await import('../services/extraction.service.js');
+          await runExtractionOnly(job_id, uploadedFiles);
+        } else {
+          const { runFullTaxPrep } = await import('../services/taxprep.service.js');
+          await runFullTaxPrep(job_id, uploadedFiles, job.client_context);
+        }
+      } catch (err) {
+        logger.error('Background pipeline trigger failed', { job_id, error: err.message });
+      }
+    }, 1000);
 
   } else if (payment_type === 'balance') {
     if (job.balance_paid) {

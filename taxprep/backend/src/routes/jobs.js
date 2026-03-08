@@ -22,7 +22,6 @@ import { validateBody, validateParams } from '../middleware/validate.js';
 import asyncHandler                    from '../utils/asyncHandler.js';
 import supabase                        from '../utils/supabase.js';
 import logger                          from '../utils/logger.js';
-import { runPipeline }                 from '../services/aiPipeline_orig.js';
 import { generate as generateCaseId }  from '../utils/caseId.js';
 import { requireIdempotency, optionalIdempotency } from '../middleware/idempotency.js';
 import { withLock } from '../middleware/raceGuard.js';
@@ -332,13 +331,20 @@ router.post('/:jobId/run-analysis', asyncHandler(async (req, res) => {
   await auditLog(jobId, req.worker.id, 'pipeline_triggered', { fileCount: files.length });
 
   // Fire and forget — pipeline writes progress to DB
-  const uploadedFiles = files.map(f => ({
-    path:         f.file_path,
-    originalname: f.original_name,
-    filename:     path.basename(f.file_path),
-  }));
+  const uploadedFiles = files.map(f => f.file_path);
 
-  withLock(jobId, 'run-analysis', req.worker.id, () => runPipeline(jobId, uploadedFiles)).catch(err => {
+  const runAnalysis = async () => {
+      if (job.tier === 'quick') {
+          const { runExtractionOnly } = await import('../services/extraction.service.js');
+          await runExtractionOnly(jobId, uploadedFiles);
+      } else {
+          const { runFullTaxPrep } = await import('../services/taxprep.service.js');
+          // Fallback context if job doesn't have one
+          await runFullTaxPrep(jobId, uploadedFiles, job.client_context || null);
+      }
+  };
+
+  withLock(jobId, 'run-analysis', req.worker.id, () => runAnalysis()).catch(err => {
     logger.error('Pipeline fire-and-forget error', { jobId, error: err.message });
   });
 

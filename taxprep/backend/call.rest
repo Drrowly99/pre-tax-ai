@@ -36,3 +36,25 @@ Authorization: Bearer QWxpY2U6Y2hhbmdlLW1lLXdvcmtlcjE=
 
 GET http://localhost:3001/api/jobs/19bfee9c-29e0-4ba3-8980-1501698c2e85
 Authorization: Bearer QWxpY2U6Y2hhbmdlLW1lLXdvcmtlcjE=
+
+### Client Register
+POST http://localhost:3001/api/auth/client/register
+Content-Type: application/json
+
+{
+  "email": "drrowly99@gmail.com",
+  "password": "securepassword123"
+}
+
+### Client Login
+POST http://localhost:3001/api/auth/client/login
+Content-Type: application/json
+
+{
+  "email": "testclient@example.com",
+  "password": "securepassword123"
+}
+
+### Client Get Profile
+GET http://localhost:3001/api/auth/client/me
+Authorization: Bearer <replace_with_client_token>

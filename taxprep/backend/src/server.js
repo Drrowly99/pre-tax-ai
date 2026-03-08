@@ -17,6 +17,7 @@ import securityHeadersMiddleware  from './middleware/securityHeaders.js';
 import { requireIdempotency, optionalIdempotency } from './middleware/idempotency.js';
 import { withLock } from './middleware/raceGuard.js';
 import authRoutes from './routes/auth.js';
+import clientAuthRoutes from './routes/clientAuth.js';
 import jobRoutes from './routes/jobs.js';
 import supabase from './utils/supabase.js';
 
@@ -107,6 +108,7 @@ app.get('/health', (req, res) => {
 });
 
 // ── ROUTES ────────────────────────────────────────────────────────────────────
+app.use('/api/auth/client', clientAuthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/jobs', jobRoutes);
 app.get('/test-db', async (req, res) => {

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessyTax | Login & Register</title>
+    
+    <!-- Supabase SDK v2 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'tax-green': '#16A34A',
+                        'tax-green-dark': '#15803D',
+                        'tax-green-light': '#DCFCE7',
+                    },
+                    fontFamily: { sans: ['Poppins', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-white min-h-screen flex text-gray-900 anti-aliased">
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Left Brand Panel (Hidden on Mobile) -->
+    <div class="hidden lg:flex w-[55%] auth-bg relative overflow-hidden flex-col justify-between p-12">
+        <div class="absolute inset-0 pattern-auth opacity-20"></div>
+        
+        <div class="relative z-10">
+            <a href="index.html" class="flex items-center group cursor-pointer w-max">
+                <div class="w-10 h-10 bg-white text-tax-green-dark rounded-lg flex items-center justify-center font-bold text-2xl shadow-lg mr-3 transform group-hover:-translate-y-1 transition-transform">M</div>
+                <span class="font-bold text-2xl tracking-tight text-white">MessyTax</span>
+            </a>
+        </div>
+
+        <div class="relative z-10 max-w-lg mt-auto mb-16">
+            <h1 class="text-white text-5xl font-bold leading-tight mb-6">Your messy finances.<br><span class="text-emerald-300">Our clean tax picture.</span></h1>
+            <p class="text-white/80 text-lg mb-8 leading-relaxed">Join independent contractors and small businesses saving hours of manual spreadsheet work.</p>
+            
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3 text-white/90 bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-white/10 w-max">
+                    <span class="text-emerald-400">✓</span>
+                    <span>AI-powered Schedule C categorisation</span>
+                </div>
+                <div class="flex items-center space-x-3 text-white/90 bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-white/10 w-max ml-8">
+                    <span class="text-emerald-400">✓</span>
+                    <span>1099-NEC subcontractor tracking</span>
+                </div>
+                <div class="flex items-center space-x-3 text-white/90 bg-black/20 p-3 rounded-lg backdrop-blur-sm border border-white/10 w-max ml-16">
+                    <span class="text-emerald-400">✓</span>
+                    <span>Full mathematical anchor chain verified</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="relative z-10 flex space-x-6 text-sm text-white/50">
+            <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+            <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            <span>© 2026 MessyTax.com</span>
+        </div>
+    </div>
+
+    <!-- Right Auth Panel -->
+    <div class="w-full lg:w-[45%] flex flex-col justify-center px-6 sm:px-16 lg:px-20 py-12 relative">
+        <div id="full-page-loader" class="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center transition-opacity duration-300">
+            <svg class="w-12 h-12 text-tax-green animate-spin mb-4" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+            <p class="text-gray-500 font-medium tracking-wide">Securing session...</p>
+        </div>
+
+        <div class="max-w-md w-full mx-auto" id="auth-container" style="opacity: 0; transition: opacity 0.3s ease;">
+            
+            <!-- Mobile Logo -->
+            <a href="index.html" class="flex lg:hidden items-center justify-center mb-10 w-max mx-auto">
+                <div class="w-10 h-10 bg-tax-green text-white rounded-lg flex items-center justify-center font-bold text-2xl shadow-lg mr-3">M</div>
+                <span class="font-bold text-2xl tracking-tight text-gray-900">MessyTax</span>
+            </a>
+
+            <!-- Shared Error Banner -->
+            <div id="global-error" class="hidden mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700" id="global-error-text">There was an error logging in.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login View -->
+            <div id="login-view" class="auth-view">
+                <h2 class="text-3xl font-bold mb-2">Welcome back</h2>
+                <p class="text-gray-500 mb-8">Log in to your MessyTax account to continue.</p>
+
+                <form id="login-form" class="space-y-5" novalidate>
+                    <div class="input-group">
+                        <label for="l-email" class="input-label">Email address</label>
+                        <input type="email" id="l-email" required autocomplete="email" class="input-field shadow-sm" placeholder="you@example.com">
+                    </div>
+                    
+                    <div class="input-group">
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="l-password" class="input-label mb-0">Password</label>
+                            <a href="#" id="forgot-link" class="text-sm font-medium text-tax-green hover:text-tax-green-dark">Forgot password?</a>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="l-password" required autocomplete="current-password" class="input-field shadow-sm pr-10" placeholder="••••••••">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none toggle-pwd" data-target="l-password">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-login" class="btn btn-primary w-full py-3 mt-4 text-base shadow-md shadow-tax-green/20">Log In &rarr;</button>
+                </form>
+
+                <div class="mt-8 flex items-center">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">or continue with</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <div class="mt-8">
+                    <button type="button" class="btn-google w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-tax-green">
+                        <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                        Google
+                    </button>
+                </div>
+
+                <p class="mt-8 text-center text-sm text-gray-600">
+                    Don't have an account? 
+                    <a href="#" id="goto-register" class="font-semibold text-tax-green hover:text-tax-green-dark ml-1">Register for free</a>
+                </p>
+            </div>
+
+            <!-- Register View -->
+            <div id="register-view" class="auth-view hidden">
+                <h2 class="text-3xl font-bold mb-2">Create your account</h2>
+                <p class="text-gray-500 mb-8">Start cleaning up your messy finances today.</p>
+
+                <form id="register-form" class="space-y-4" novalidate>
+                    <div class="input-group">
+                        <label for="r-name" class="input-label">Full Name</label>
+                        <input type="text" id="r-name" required autocomplete="name" class="input-field shadow-sm" placeholder="John Doe">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="r-email" class="input-label">Email address</label>
+                        <input type="email" id="r-email" required autocomplete="email" class="input-field shadow-sm" placeholder="you@example.com">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="r-password" class="input-label">Password</label>
+                        <div class="relative">
+                            <input type="password" id="r-password" required autocomplete="new-password" class="input-field shadow-sm pr-10" placeholder="At least 8 characters">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 outline-none toggle-pwd" data-target="r-password">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                        <!-- Strength Meter -->
+                        <div class="mt-2 flex justify-between space-x-1" id="strength-bars">
+                            <div class="password-strength-bar"></div>
+                            <div class="password-strength-bar"></div>
+                            <div class="password-strength-bar"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1" id="strength-text">Password strength</p>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="r-confirm" class="input-label">Confirm Password</label>
+                        <div class="relative">
+                            <input type="password" id="r-confirm" required autocomplete="new-password" class="input-field shadow-sm pr-10" placeholder="••••••••">
+                            <div id="match-icon" class="absolute inset-y-0 right-0 pr-3 flex items-center text-tax-green opacity-0 transition-opacity">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start mt-6 mb-2">
+                        <div class="flex items-center h-5">
+                            <input id="r-terms" type="checkbox" required class="w-4 h-4 rounded border-gray-300 text-tax-green focus:ring-tax-green bg-gray-50 cursor-pointer accent-tax-green">
+                        </div>
+                        <div class="ml-3 text-sm">
+                            <label for="r-terms" class="font-medium text-gray-700 cursor-pointer">I agree to the <a href="#" class="text-tax-green hover:underline">Terms of Service</a> and <a href="#" class="text-tax-green hover:underline">Privacy Policy</a>.</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-register" class="btn btn-primary w-full py-3 mt-4 text-base shadow-md shadow-tax-green/20">Create Account &rarr;</button>
+                </form>
+
+                <div class="mt-6 flex items-center">
+                    <div class="flex-grow border-t border-gray-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">or sign up with</span>
+                    <div class="flex-grow border-t border-gray-200"></div>
+                </div>
+
+                <div class="mt-6">
+                    <button type="button" class="btn-google w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-700 font-medium hover:bg-gray-50 transition-colors focus:ring-tax-green">
+                        <svg class="h-5 w-5 mr-2" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                        Google
+                    </button>
+                </div>
+
+                <p class="mt-8 text-center text-sm text-gray-600">
+                    Already have an account? 
+                    <a href="#" id="goto-login" class="font-semibold text-tax-green hover:text-tax-green-dark ml-1">Log in here</a>
+                </p>
+            </div>
+
+            <!-- Forgot Password View -->
+            <div id="forgot-view" class="auth-view hidden">
+                <a href="#" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-900 mb-6 back-to-login">
+                    <svg class="mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg> Back to login
+                </a>
+                
+                <h2 class="text-3xl font-bold mb-2">Reset your password</h2>
+                <p class="text-gray-500 mb-8" id="forgot-desc">Enter your email and we'll send you a link to reset your password.</p>
+
+                <div id="forgot-success" class="hidden text-center py-8">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-tax-green-light mb-4 text-tax-green">
+                        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2">Check your inbox</h3>
+                    <p class="text-gray-500">We sent a password reset link to your email.</p>
+                </div>
+
+                <form id="forgot-form" class="space-y-4" novalidate>
+                    <div class="input-group">
+                        <label for="f-email" class="input-label">Email address</label>
+                        <input type="email" id="f-email" required autocomplete="email" class="input-field shadow-sm" placeholder="you@example.com">
+                    </div>
+                    
+                    <button type="submit" id="btn-forgot" class="btn btn-primary w-full py-3 mt-4 text-base shadow-md shadow-tax-green/20">Send Reset Link &rarr;</button>
+                </form>
+            </div>
+
+            <!-- Update Password View (Shown if ?reset=true) -->
+            <div id="update-view" class="auth-view hidden">
+                <h2 class="text-3xl font-bold mb-2">Set new password</h2>
+                <p class="text-gray-500 mb-8">Please enter your new password below.</p>
+
+                <form id="update-form" class="space-y-4" novalidate>
+                    <div class="input-group">
+                        <label for="u-password" class="input-label">New Password</label>
+                        <div class="relative">
+                            <input type="password" id="u-password" required class="input-field shadow-sm pr-10" placeholder="At least 8 characters">
+                            <button type="button" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 outline-none toggle-pwd" data-target="u-password">
+                                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="btn-update" class="btn btn-primary w-full py-3 mt-4 text-base shadow-md shadow-tax-green/20">Update Password &rarr;</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="config.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/auth.js"></script>
+</body>
+</html>
